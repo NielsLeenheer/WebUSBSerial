@@ -1,46 +1,45 @@
-# rollup-starter-lib
+# webusb-serial
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/rollup/rollup-starter-lib.svg)](https://greenkeeper.io/)
-
-This repo contains a bare-bones example of how to create a library using Rollup, including importing a module from `node_modules` and converting it from CommonJS.
-
-We're creating a library called `how-long-till-lunch`, which usefully tells us how long we have to wait until lunch, using the [ms](https://github.com/zeit/ms) package:
-
-```js
-console.log('it will be lunchtime in ' + howLongTillLunch());
-```
-
-## Getting started
-
-Clone this repository and install its dependencies:
-
-```bash
-git clone https://github.com/rollup/rollup-starter-lib
-cd rollup-starter-lib
-npm install
-```
-
-`npm run build` builds the library to `dist`, generating three files:
-
-* `dist/how-long-till-lunch.cjs.js`
-    A CommonJS bundle, suitable for use in Node.js, that `require`s the external dependency. This corresponds to the `"main"` field in package.json
-* `dist/how-long-till-lunch.esm.js`
-    an ES module bundle, suitable for use in other people's libraries and applications, that `import`s the external dependency. This corresponds to the `"module"` field in package.json
-* `dist/how-long-till-lunch.umd.js`
-    a UMD build, suitable for use in any environment (including the browser, as a `<script>` tag), that includes the external dependency. This corresponds to the `"browser"` field in package.json
-
-`npm run dev` builds the library, then keeps rebuilding it whenever the source files change using [rollup-watch](https://github.com/rollup/rollup-watch).
-
-`npm test` builds the library, then tests it.
-
-## Variations
-
-* [babel](https://github.com/rollup/rollup-starter-lib/tree/babel) — illustrates writing the source code in ES2015 and transpiling it for older environments with [Babel](https://babeljs.io/)
-* [buble](https://github.com/rollup/rollup-starter-lib/tree/buble) — similar, but using [Bublé](https://buble.surge.sh/) which is a faster alternative with less configuration
-* [TypeScript](https://github.com/rollup/rollup-starter-lib/tree/typescript) — uses [TypeScript](https://www.typescriptlang.org/) for type-safe code and transpiling
+This is an partial implementation of WebSerial using WebUSB. You should avoid using this. All browsers that support WebUSB also support WebSerial in their currently shipping version, so there is really no need for for regular use.
 
 
+### What does this library do?
 
-## License
+If you have a USB to Serial dongle, this library allows you to access it in a similar way as you would using WebSerial. It contains drivers for the most common chipsets used in these dongles: FTDI, PL2303 and CP2102.
 
-[MIT](LICENSE).
+However... on Windows the dongle might be exclusively claimed by the system driver. In that case you cannot use WebUSB to access the device. But luckily WebSerial itself will work!
+
+
+### How to use it?
+
+Load the `webusb-serial.umd.js` file in the browser and call requestPort on WebUSBSerial. Then use it as you would any other WebSerial port.
+
+    <script src='webusb-serial.umd.js></script>
+
+    <script>
+
+        const port = await WebUSBSerial.requestPort();
+
+    </script>
+
+
+Or import the `webusb-serial.esm.js` module:
+
+    import WebUSBSerial from 'webusb-serial.esm.js';
+
+    const port = await WebUSBSerial.requestPort();
+
+
+### What is implemented?
+
+This is a work in progress and nowhere near complete implementation of the WebSerial API. There will be features missing.
+
+What does not work for sure: signals and events. 
+
+What might also not work: everything else.
+
+
+
+### License
+
+MIT
