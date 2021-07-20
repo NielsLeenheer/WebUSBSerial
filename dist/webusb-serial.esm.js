@@ -598,7 +598,7 @@ class DriverFTDI {
                 that._internal.device.transferIn(that._internal.endpoints.in.endpointNumber, 4 << 10).then(transfer => {
                     if (transfer.status === 'ok') {
                         if (transfer.data.byteLength != 2) {
-                            this._internal.controller.enqueue(transfer.data.buffer.slice(2));
+                            that._internal.controller.enqueue(transfer.data.buffer.slice(2));
                         }
                     }
                     
