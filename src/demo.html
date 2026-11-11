@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSerialScanner test</title>
+    <style>
+        body { font-family: sans-serif; margin: 1.5rem; }
+        button { font-size: 1rem; padding: 0.5rem 1rem; margin-right: 0.5rem; }
+        #log { font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>WebSerialScanner test</h1>
+    <p id="support"></p>
+    <p>Status: <strong id="status">not connected</strong></p>
+    <button id="connect">Connect scanner</button>
+    <button id="disconnect">Disconnect</button>
+    <button id="forget">Forget scanner</button>
+    <ol id="log" reversed></ol>
+
+    <script type="module">
+        import { WebSerialScanner } from './webserial-scanner.js';
+
+        const byId = (id) => document.getElementById(id);
+        const hex = (id) => (id === null ? 'none' : `0x${id.toString(16).padStart(4, '0')}`);
+
+        function log(text) {
+            const item = document.createElement('li');
+            item.textContent = `${new Date().toLocaleTimeString()}  ${text}`;
+            byId('log').prepend(item);
+        }
+
+        const support = WebSerialScanner.checkSupport();
+        byId('support').textContent = support.supported
+            ? 'Web Serial is available'
+            : `Web Serial is unavailable (${support.reason})`;
+
+        const scanner = new WebSerialScanner();
+        scanner.addEventListener('scan', (e) => log(`scan: ${e.detail.value}`));
+        scanner.addEventListener('rejected', (e) => log(`rejected: ${e.detail.reason}, ${e.detail.length} bytes`));
+        scanner.addEventListener('error', (e) => log(`error during ${e.detail.stage}: ${e.detail.error?.message ?? e.detail.error}`));
+        scanner.addEventListener('connected', (e) => {
+            byId('status').textContent = `connected, usbVendorId ${hex(e.detail.usbVendorId)}, usbProductId ${hex(e.detail.usbProductId)}`;
+        });
+        scanner.addEventListener('disconnected', (e) => {
+            byId('status').textContent = `not connected (${e.detail.reason})`;
+        });
+
+        byId('connect').addEventListener('click', () => {
+            scanner.requestPort().catch((err) => log(err.message));
+        });
+        byId('disconnect').addEventListener('click', () => {
+            scanner.stop();
+        });
+        byId('forget').addEventListener('click', () => {
+            scanner.forget().then(() => log('permission revoked'), (err) => log(err.message));
+        });
+
+        if (support.supported) {
+            scanner.start().catch((err) => log(err.message));
+        }
+    </script>
+</body>
+</html>
